@@ -1,0 +1,33 @@
+<!DOCTYPE html>   
+<head>
+    <title>ADD STUDENT</title>
+</head>
+<body>
+    <label for="year">YEAR : </label>
+    <input type="number" id="year" name="year"><br>
+    <label for="branch">BRANCH : </label>
+    <select id="branch" name="branch">
+        <option value="IT">IT</option>
+        <option value="CE">CE</option>
+        <option value="CSE">CSE</option>
+        <option value="EC">EC</option>
+    </select><br>
+    <label for="no_of_students">NO OF STUDENTS : </label>
+    <input type="number" id="no_of_students" name="no_of_students"><br>
+    <input type="button" name="submit" value="SUBMIT" onclick="callApi()">
+</body>
+<script>
+    function callApi(){
+        var year = document.getElementById('year').value; 
+        var branch = document.getElementById('branch').value; 
+        var no_of_students = document.getElementById('no_of_students').value; 
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/addstudent");
+        url.searchParams.append('year',year);
+        url.searchParams.append('branch',branch);
+        url.searchParams.append('no_of_students',no_of_students);
+        const XHR = new XMLHttpRequest();
+        XHR.open( 'GET', url);
+        XHR.send();
+    }
+</script>
+</html>

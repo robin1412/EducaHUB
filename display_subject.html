@@ -1,0 +1,93 @@
+<!DOCTYPE html>   
+<head>
+    <title>Display Subjects</title>
+</head>
+<body>
+    <label for="branch">BRANCH : </label>
+    <select id="branch" name="branch">
+        <option value="IT">IT</option>
+        <option value="CE">CE</option>
+        <option value="CSE">CSE</option>
+        <option value="EC">EC</option>
+    </select><br>
+    <label for="sem">Sem : </label>
+    <select id="sem" name="sem">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+    </select><br><br>
+    <p  id="add_subject" name="response"></p>
+    <p  id="display_subject" name="response"></p>
+    <button type="button" value="add_subject" id="add_subject" onclick="add_subject()">ADD SUBJECTS</button><br>
+    <button type="button" value="display_subject" id="display_subject" onclick="display_subject()">DISPLAY SUBJECTS</button><br>
+</body>
+<script>
+    function display_subject(){
+        var sem = document.getElementById('sem').value;
+        var branch = document.getElementById('branch').value;  
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/display");
+        url.searchParams.append('sem',sem);
+        url.searchParams.append('branch',branch);
+        const XHR = new XMLHttpRequest();
+        XHR.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+            var response1 = this.responseText;
+            var response2 = JSON.parse(response1);
+            var result = parseTuple(response2.record);
+            var columns = response2.column;
+            print_data(columns,result);
+        }
+        }
+        XHR.open( 'GET', url);
+        XHR.send();
+    }
+    function parseTuple(t) {
+            t  = t.toString();
+            var data = t.split(',');
+            return data;
+        }
+
+    function print_data(columns,result){
+        var subject = "<table border="+1+"><thead><tr><th>SUBJECT</th><th colspan="+2+">Action</th></tr></thead>";
+
+        for(var i=0; i<result.length ; i+=2){
+            if(result[i] != ""){
+                subject = subject + "<tr> <td>"+result[i+1]+"</td> <td>  </td>  <td> <button onclick="+"delete_subject("+result[i]+")"+" id="+"del"+" class="+"del"+" >Delete</button> </td> </tr>";
+            }
+        }
+        document.getElementById("display_subject").innerHTML = subject;
+        }
+
+    function delete_subject(id){  
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/del-subject");
+        url.searchParams.append('id',id);
+        const XHR = new XMLHttpRequest();
+        XHR.open( 'GET', url);
+        XHR.send();
+        
+    }
+
+    function add_subject(){
+        var subject = "<input type="+"text"+" id="+"subject"+" name="+"subject"+" placeholder="+"\"Enter Subject\""+" ><br><button type="+"button"+" id="+"add"+" onclick="+"add()"+">ADD</button>";
+        document.getElementById("add_subject").innerHTML = subject;
+    }
+    function add(){
+        var sem = document.getElementById('sem').value;
+        var branch = document.getElementById('branch').value;  
+        var subject = document.getElementById('subject').value; 
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/add-subject");
+        url.searchParams.append('sem',sem);
+        url.searchParams.append('branch',branch);
+        url.searchParams.append('subject',subject);
+        const XHR = new XMLHttpRequest();
+        XHR.open( 'GET', url);
+        XHR.send();
+    }
+
+</script>
+</html>

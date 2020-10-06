@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<head>
+    <title>FACULTY SUBJECT</title>
+</head>
+<body onload="get_data()">
+
+    <select id="sem" onchange="get_data()">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+    </select>
+    <select id="branch" onchange="get_data()">
+        <option value="IT">IT</option>
+        <option value="CE">CE</option>
+        <option value="CSE">CSE</option>
+        <option value="EC">EC</option>
+    </select>
+
+</body>
+<script>
+    function get_data(){
+        var sem = document.getElementById('sem').value;
+        var branch = document.getElementById('branch').value;
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/disp-faculty-subj");
+        url.searchParams.append('sem',sem);
+        url.searchParams.append('branch',branch);
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        // Typical action to be performed when the document is ready:
+        
+        var response1 = this.responseText;
+            var response2 = JSON.parse(response1);
+            var subject = parseTuple(response2.subject);
+            var faculty = parseTuple(response2.faculty);
+            display_subject(subject);
+            display_faculty(faculty);
+
+            var allo = document.getElementById("allocate");
+            if(allo!=null){
+                allo.remove();
+             }
+        
+            var x = document.createElement("BUTTON");
+            x.setAttribute("id", "allocate");
+            var t = document.createTextNode("Allocate");
+            x.setAttribute("onclick", "allocate()");
+            x.appendChild(t);
+            document.body.appendChild(x);
+
+        }
+    };
+        xhttp.open("GET", url);
+        xhttp.send();
+    }
+    function parseTuple(t) {
+            t  = t.toString();
+            var data = t.split(',');
+            return data;
+        }
+    
+    function display_subject(subject){
+        var sub = document.getElementById("subject");
+        if(sub!=null){
+            sub.remove();
+        }
+        var x = document.createElement("SELECT");
+        x.setAttribute("id", "subject");
+        document.body.appendChild(x);
+
+        for(var i=0;i<subject.length;i++)
+        {
+            if(subject[i] != ""){
+                var z = document.createElement("option");
+                z.setAttribute("value",subject[i]);
+                var t = document.createTextNode(subject[i]);
+                z.appendChild(t);
+                document.getElementById("subject").appendChild(z);
+            }
+        }
+    }
+
+    function display_faculty(faculty){
+        var fac = document.getElementById("faculty");
+        if(fac!=null){
+            fac.remove();
+        }
+        var x = document.createElement("SELECT");
+        x.setAttribute("id", "faculty");
+        document.body.appendChild(x);
+        
+
+        for(var i=0;i<faculty.length;i+=2)
+        {
+            if(faculty[i] != ""){
+                var z = document.createElement("option");
+                z.setAttribute("value",faculty[i]);
+                var t = document.createTextNode(faculty[i+1]);
+                z.appendChild(t);
+                document.getElementById("faculty").appendChild(z);
+            }
+        }
+    }
+
+    function allocate(){
+        var sem = document.getElementById('sem').value;
+        var branch = document.getElementById('branch').value;
+        var subject = document.getElementById('subject').value;
+        var faculty = document.getElementById('faculty').value;
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/allocate-subject");
+        url.searchParams.append('sem',sem);
+        url.searchParams.append('branch',branch);
+        url.searchParams.append('faculty',faculty);
+        url.searchParams.append('subject',subject);
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", url);
+        xhttp.send();
+        
+    }
+
+
+</script>
+</html>
