@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+    </head>    
+<body>
+    <button type="button" value="launch instances" id="button" onclick="callapigw()">Get Key Pair Link</button><br>
+    <p id="response"></p>
+    <a id = "a" href = "" alt ="" >
+    <button type="button"  id="btn" onclick="logout()">LOGOUT</button><br>
+
+<form method="GET" action="https://demo84.auth.us-east-1.amazoncognito.com/logout?client_id=103e5mbdema04614njeol78jhm&logout_uri=https://test-84.s3.amazonaws.com/upload.html">
+    <br><input type="submit" value="LOGOUT2"><br>
+</form>
+
+<button type="button"  id="btn" onclick="logout3()">LOGOUT3</button><br>
+
+<br>
+<a href="https://demo84.auth.us-east-1.amazoncognito.com/logout?client_id=103e5mbdema04614njeol78jhm&logout_uri=https://test-84.s3.amazonaws.com/upload.html">lougout4</a><br>
+<script type="text/javascript">   
+        function logout(){
+            var url = new URL("https://demo84.auth.us-east-1.amazoncognito.com/logout?client_id=103e5mbdema04614njeol78jhm&logout_uri=https://test-84.s3.amazonaws.com/upload.html");            
+            const XHR = new XMLHttpRequest();
+            XHR.open( 'GET', url);
+            XHR.send();
+        
+        }
+        function logout3(){
+            var url = "https://demo84.auth.us-east-1.amazoncognito.com/logout?client_id=103e5mbdema04614njeol78jhm&logout_uri=https://test-84.s3.amazonaws.com/upload.html";
+            alert(url);
+        }
+        function callapigw(){     
+            var url = new URL("https://a4hbewxhi4.execute-api.us-east-1.amazonaws.com/First/getkeypair");             
+            const XHR = new XMLHttpRequest();
+            XHR.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var respon = this.responseText;
+                console.log(respon);
+                var parsed_respons = JSON.parse(respon);
+                var result = parsed_respons.body;
+                EnableDisableLinks(result);
+                }
+            }
+            XHR.open( 'GET', url);
+            XHR.send();
+            //document.getElementById("response_ack").innerHTML = "Response from server:::";
+        }
+        function EnableDisableLinks(result) {
+            var link = document.querySelector("a"); 
+            link.getAttribute("href"); 
+            link.setAttribute("href",result); 
+            link.textContent = "Click To Download keypair"; 
+        }    
+
+       </script>     
+</body>
+</html>

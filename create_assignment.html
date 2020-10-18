@@ -1,0 +1,245 @@
+<!DOCTYPE html>   
+<head>
+    <title>CREATE ASSIGNMENT</title>
+</head>
+<script>
+  var sem = sessionStorage.getItem("sem");
+    var branch = sessionStorage.getItem("branch");
+    var subject = sessionStorage.getItem("subject");
+    var increment=0;
+    var files_body=[];
+    var files_name=[];
+</script>
+<body>
+    <input type="text" placeholder="Assignment Title.." id="assignment_title" required>
+    <textarea placeholder="Enter Assignment details here..." id="assignment_detail" required></textarea>
+    <input type="file" id="files">
+    <input type="button" id="submit" value="Create Assignment" onclick="checkdetails()">
+ 
+</body>
+<script>
+
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+
+function handleFileSelect(evt) {
+  var f = evt.target.files[0];
+  var reader = new FileReader();
+
+  reader.onload = (function(theFile) {
+    return function(e) {
+      var binaryData = e.target.result;
+
+      var base64String = window.btoa(binaryData);
+     files_body[increment]=base64String;
+     filename=document.getElementById('files').value;
+     var pos = filename.lastIndexOf("\\");
+     filename = filename.substr(pos+1);
+     files_name[increment]=filename;
+     increment++;
+    
+      var btn = document.getElementById("submit");
+        if(btn!=null){
+            btn.remove();
+        }
+        var status = document.getElementById("status");
+        if(status!=null){
+            status.remove();
+        }
+        var x = document.createElement("input");
+        x.setAttribute("type", "button");
+        x.setAttribute("id", "submit");
+        x.setAttribute("value", "Create Assignment");
+        x.setAttribute("onclick", "callapigw()");
+        document.body.appendChild(x);
+    };
+  })(f);
+
+  reader.readAsBinaryString(f);     
+}
+function checkdetails(){
+  var atitle = document.getElementById("assignment_title");
+  var adetails = document.getElementById("assignment_detail");
+  if(atitle.value != "" && adetails.value != ""){
+    callapigw();
+  }
+  else{
+    alert("Enter all fields of assignment");
+  }
+}
+
+function callapigw(){
+        var x = document.createElement("progress");
+        x.setAttribute("id", "progressBar");
+        x.setAttribute("value", "0");
+        x.setAttribute("max", "100");
+        x.setAttribute("style", "width:300px;");
+        document.body.appendChild(x);
+
+        var y = document.createElement("h3");
+        y.setAttribute("id", "status");
+        document.body.appendChild(y);
+
+        var z = document.createElement("p");
+        z.setAttribute("id", "loaded_n_total");
+        document.body.appendChild(z); 
+
+    var atitle = document.getElementById("assignment_title").value;
+    var adetail = document.getElementById("assignment_detail").value;
+    
+
+    var data = "{"+"'filenames'"+": "+"'"+files_name+"'"+" , "+"'files_body'"+" : "+"'"+files_body+"'"+" , "+"'sem'"+" : "+"'"+sem+"'"+" , "+"'branch'"+" : "+"'"+branch+"'"+" , "+"'subject'"+" : "+"'"+subject+"'"+" , "+"'atitle'"+" : "+"'"+atitle+"'"+" , "+"'adetail'"+" : "+"'"+adetail+"'"+"}";
+   console.log(data);
+  var ajax = new XMLHttpRequest();
+  ajax.upload.addEventListener("progress", progressHandler, false);
+  ajax.addEventListener("load", completeHandler, false);
+  ajax.addEventListener("error", errorHandler, false);
+  ajax.addEventListener("abort", abortHandler, false);
+  ajax.open("POST", "https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/create-assignment"); 
+  ajax.send(data);
+}
+
+function progressHandler(event) {
+  document.getElementById("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
+  var percent = (event.loaded / event.total) * 100;
+  document.getElementById("progressBar").value = Math.round(percent);
+  document.getElementById("status").innerHTML = Math.round(percent) + "% uploaded... please wait";
+}
+
+function completeHandler(event) {
+  document.getElementById("status").innerHTML = "Successfully Uploaded";
+  document.getElementById("progressBar").value = 0;
+  var element = document.getElementById("loaded_n_total");
+  element.parentNode.removeChild(element);
+  var element1 = document.getElementById("progressBar");
+  element1.parentNode.removeChild(element1);
+  //setTimeout("location.reload(true);", 850);
+}
+
+function errorHandler(event) {
+  document.getElementById("status").innerHTML = "Upload Failed";
+}
+
+function abortHandler(event) {
+  document.getElementById("status").innerHTML = "Upload Aborted";
+}
+
+function get_files(){
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/display-files"); //change here
+        const XHR = new XMLHttpRequest();
+        XHR.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+            var response1 = this.responseText;
+            var response2 = JSON.parse(response1);
+            var record = parseTuple(response2.record);
+            display_files(record);
+        }
+        }
+        url.searchParams.append('sem',sem);
+        url.searchParams.append('branch',branch);
+        url.searchParams.append('subject',subject);
+        XHR.open( 'GET', url);
+        XHR.send();
+    }
+
+    function parseTuple(t) {
+            t  = t.toString();
+            var data = t.split(',');
+            return data;
+        }
+
+        function display_files(record){
+          var x = document.createElement("TABLE");
+          x.setAttribute("id", "file");
+          x.setAttribute("border", "1");
+          document.body.appendChild(x);
+
+          var y = document.createElement("TR");
+          y.setAttribute("id", "myTR");
+          document.getElementById("file").appendChild(y);
+
+        var z = document.createElement("TH");
+         var t = document.createTextNode("Filename");
+        z.appendChild(t);
+          document.getElementById("myTR").appendChild(z);
+
+          var a = document.createElement("TH");
+          a.setAttribute("colspan", "3");
+          var t = document.createTextNode("Action");
+          a.appendChild(t);
+         document.getElementById("myTR").appendChild(a);
+
+         for(var i=0; i<record.length ; i+=3){
+            if(record[i] != ""){
+              var y = document.createElement("TR");
+              y.setAttribute("id", record[i]);
+              document.getElementById("file").appendChild(y);
+
+             var z = document.createElement("TD");
+            var t = document.createTextNode(record[i+1]);
+            z.appendChild(t);
+            document.getElementById(record[i]).appendChild(z);
+
+            var z = document.createElement("TD");
+            var x = document.createElement("BUTTON");
+            x.setAttribute("id", "s3");
+            var t = document.createTextNode("VIEW");
+            x.setAttribute("onclick", "view_file(\'"+record[i+2]+"\')");
+            x.appendChild(t);
+            z.appendChild(x);
+
+            
+            var a = document.createElement("BUTTON");
+            a.setAttribute("id", "s3");
+            var c = document.createTextNode("DOWNLOAD");
+            a.setAttribute("onclick", "download_file(\'"+record[i+2]+"\')");
+            a.appendChild(c);
+            z.appendChild(a);
+
+            var x = document.createElement("BUTTON");
+            x.setAttribute("id", "s3");
+            var t = document.createTextNode("DELETE");
+            x.setAttribute("onclick", "delete_file("+record[i]+")");
+            x.appendChild(t);
+            z.appendChild(x);
+            document.getElementById(record[i]).appendChild(z);
+                
+            }
+        }
+}
+
+function view_file(link){
+  sessionStorage.setItem("link",link);
+  document.location.href = "Display_s3.html";
+}
+
+function delete_file(id){
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/delete-file");
+        const XHR = new XMLHttpRequest();
+        XHR.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+          location.reload(); 
+        }
+        }
+        url.searchParams.append('row_id',id);
+        XHR.open( 'GET', url);
+        XHR.send();
+       
+}
+
+function download_file(link)
+    {
+      document.location.href = link;
+    }  
+
+
+
+function create_assignment(){
+    
+}
+
+</script>
+</html>

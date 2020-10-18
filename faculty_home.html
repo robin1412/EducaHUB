@@ -1,0 +1,56 @@
+<!DOCTYPE html>   
+<head>
+    <title>Faculty Home Screen</title>
+</head>
+<body onload="display_sub()">
+    
+</body>
+<script>
+    function display_sub(){
+        faculty_id = "dhruvilpatel.it";
+        var url = new URL("https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/faculty-dashboard");
+        const XHR = new XMLHttpRequest();
+        XHR.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+            var response1 = this.responseText;
+            var response2 = JSON.parse(response1);
+            var result = parseTuple(response2.subjects);
+            var columns = response2.column;
+            display_subject(result);
+        }
+        }
+        url.searchParams.append('faculty_id',faculty_id);
+        XHR.open( 'GET', url);
+        XHR.send();
+    }
+    function parseTuple(t) {
+            t  = t.toString();
+            var data = t.split(',');
+            return data;
+        }
+    function display_subject(subject){
+        for(var i=0;i<subject.length;i+=3)
+        {
+            var x = document.createElement("DIV");
+            x.setAttribute("id",subject[i+2]);
+            x.setAttribute("onclick","upload_data("+subject[i]+",\'"+subject[i+1]+"\',\'"+subject[i+2]+"\')");
+            var t = document.createTextNode("SEM : "+subject[i]); 
+            x.appendChild(t);
+            var t = document.createTextNode("BRANCH : "+subject[i+1]); 
+            x.appendChild(t); 
+            var t = document.createTextNode("SUBJECT : "+subject[i+2]); 
+            x.appendChild(t); 
+            document.body.appendChild(x); 
+        }
+    }
+    function upload_data(sem,branch,subject)
+    {
+        sessionStorage.setItem("sem", sem);
+        sessionStorage.setItem("branch", branch);
+        sessionStorage.setItem("subject", subject);
+        document.location.href = "faculty_upload.html";
+
+        
+    }
+</script>
+</html>

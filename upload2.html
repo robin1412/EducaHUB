@@ -1,0 +1,85 @@
+<!DOCTYPE html>   
+<head>
+    <title>JavaScript file upload</title>
+    
+</head>
+<body>
+    <input type="file" id="files" name="files" />
+    <br>
+    <textarea id="base64" rows="5" ></textarea>
+
+    <input type="button" value="submit" onclick="callapigw()">
+    <progress id="progressBar" value="0" max="100" style="width:300px;"></progress>
+    <h3 id="status"></h3>
+    <p id="loaded_n_total"></p>
+
+<script type="text/javascript">  
+
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+} else {
+  alert('The File APIs are not fully supported in this browser.');
+}
+
+function handleFileSelect(evt) {
+  var f = evt.target.files[0]; // FileList object
+  var reader = new FileReader();
+  // Closure to capture the file information.
+  reader.onload = (function(theFile) {
+    return function(e) {
+      var binaryData = e.target.result;
+      //Converting Binary Data to base 64
+      var base64String = window.btoa(binaryData);
+      //showing file converted to base64
+      document.getElementById('base64').innerHTML = base64String;
+      alert('File converted to base64 successfuly!\nCheck in Textarea');
+    
+    };
+  })(f);
+  // Read in the image file as a data URL.
+  reader.readAsBinaryString(f);     
+}
+
+function callapigw(){
+    
+    base64String=document.getElementById('base64').value;
+   
+    filename = document.getElementById('files').value;
+    var pos = filename.lastIndexOf("\\");
+    filename = filename.substr(pos+1);
+
+    var data = "{"+"'filename'"+": "+"'"+filename+"'"+" , "+"'file_body'"+" : "+"'"+base64String+"'"+"}";
+   
+  var ajax = new XMLHttpRequest();
+  ajax.upload.addEventListener("progress", progressHandler, false);
+  ajax.addEventListener("load", completeHandler, false);
+  ajax.addEventListener("error", errorHandler, false);
+  ajax.addEventListener("abort", abortHandler, false);
+  ajax.open("POST", "https://0f0q4f7ygf.execute-api.us-east-1.amazonaws.com/demo1/demo"); 
+  ajax.send(data);
+}
+
+function progressHandler(event) {
+  document.getElementById("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total;
+  var percent = (event.loaded / event.total) * 100;
+  document.getElementById("progressBar").value = Math.round(percent);
+  document.getElementById("status").innerHTML = Math.round(percent) + "% uploaded... please wait";
+}
+
+function completeHandler(event) {
+  document.getElementById("status").innerHTML = event.target.responseText;
+  document.getElementById("progressBar").value = 0; //wil clear progress bar after successful upload
+}
+
+function errorHandler(event) {
+  document.getElementById("status").innerHTML = "Upload Failed";
+}
+
+function abortHandler(event) {
+  document.getElementById("status").innerHTML = "Upload Aborted";
+}
+  
+</script>   
+
+</body>
+</html>
